@@ -1,24 +1,27 @@
-// src/llmService.ts
-
 import axios from 'axios';
 import * as vscode from 'vscode';
 
-export async function analyzeCodeWithLLM(code: string, languageId: string): Promise<string> {
+export async function analyzeCodeWithLLM(code: string, languageId: string, fileName: string): Promise<string> {
   const config = vscode.workspace.getConfiguration('code-function-analysis');
   const provider = config.get('apiProvider') as string || 'HuggingFace';
+  let result = '';
 
   switch (provider) {
     case 'OpenAI':
-      return analyzeWithOpenAI(code, languageId, config);
+      result = await analyzeWithOpenAI(code, languageId, fileName, config);
+      break;
     case 'HuggingFace':
-      return analyzeWithHuggingFace(code, languageId, config);
+      result = await analyzeWithHuggingFace(code, languageId, fileName, config);
+      break;
     default:
       vscode.window.showErrorMessage('Invalid API provider selected.');
       return '';
   }
+
+  return result;
 }
 
-async function analyzeWithOpenAI(code: string, languageId: string, config: vscode.WorkspaceConfiguration): Promise<string> {
+async function analyzeWithOpenAI(code: string, languageId: string, fileName: string, config: vscode.WorkspaceConfiguration): Promise<string> {
   const apiKey = config.get('openAIApiKey') as string;
 
   if (!apiKey) {
@@ -26,7 +29,7 @@ async function analyzeWithOpenAI(code: string, languageId: string, config: vscod
     return '';
   }
 
-  const prompt = buildPrompt(code, languageId, config);
+  const prompt = buildPrompt(code, languageId, fileName, config);
 
   try {
     const response = await axios.post(
@@ -34,7 +37,7 @@ async function analyzeWithOpenAI(code: string, languageId: string, config: vscod
       {
         model: 'gpt-4', // or 'gpt-3.5-turbo' if you don't have access to GPT-4
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 1000,
+        max_tokens: 1500,
         temperature: 0.7,
       },
       {
@@ -52,23 +55,24 @@ async function analyzeWithOpenAI(code: string, languageId: string, config: vscod
   }
 }
 
-async function analyzeWithHuggingFace(code: string, languageId: string, config: vscode.WorkspaceConfiguration): Promise<string> {
+async function analyzeWithHuggingFace(code: string, languageId: string, fileName: string, config: vscode.WorkspaceConfiguration): Promise<string> {
   const apiKey = config.get('huggingFaceApiKey') as string;
+  const model = config.get('huggingFaceModel') as string || 'EleutherAI/gpt-neo-2.7B';
 
   if (!apiKey) {
     vscode.window.showErrorMessage('Hugging Face API key is not set. Please set it in the extension settings.');
     return '';
   }
 
-  const prompt = buildPrompt(code, languageId, config);
+  const prompt = buildPrompt(code, languageId, fileName, config);
 
   try {
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B',
+      `https://api-inference.huggingface.co/models/${model}`,
       {
         inputs: prompt,
         parameters: {
-          max_new_tokens: 500,
+          max_new_tokens: 700,
           temperature: 0.7,
         },
       },
@@ -95,7 +99,7 @@ async function analyzeWithHuggingFace(code: string, languageId: string, config: 
   }
 }
 
-function buildPrompt(code: string, languageId: string, config: vscode.WorkspaceConfiguration): string {
+function buildPrompt(code: string, languageId: string, fileName: string, config: vscode.WorkspaceConfiguration): string {
   const feedbackLevel = config.get('feedbackLevel') as string || 'simple';
   const focusAreas = config.get('focusAreas') as string[] || ['performance', 'style', 'readability', 'complexity'];
 
@@ -121,15 +125,12 @@ function buildPrompt(code: string, languageId: string, config: vscode.WorkspaceC
 
   const focusAreasText = focusAreas.join(', ');
 
-  // Adjust the prompt based on feedback level
-  let feedbackInstruction = '';
-  if (feedbackLevel === 'verbose') {
-    feedbackInstruction = 'Provide detailed feedback with pros and cons of each suggestion.';
-  } else {
-    feedbackInstruction = 'Provide concise feedback.';
-  }
+  // Create feedback instruction to include corrections and explanations
+  let feedbackInstruction = feedbackLevel === 'verbose'
+    ? `Provide detailed feedback with pros and cons of each suggestion. If there are mistakes in the code, highlight them, correct the code, and explain why the changes improve it. Act like a mentor, guiding the user to write better code.`
+    : `Provide concise feedback. If there are mistakes in the code, highlight them, provide corrections, and explain why the changes improve the code.`;
 
-  return `You are a code review assistant. Analyze the following ${languageId} function according to ${styleGuide} and focus on ${focusAreasText}. If the code is not good or elegant, provide suggestions for improvement. ${feedbackInstruction} Include an analysis of the function's time and space complexity. Include links to relevant documentation or examples where appropriate.
+  return `You are a code review assistant. Analyze the following ${languageId} function from the file ${fileName} according to ${styleGuide} and focus on ${focusAreasText}. If the code contains errors or areas of improvement, highlight those issues, provide corrected code, and explain why the changes improve the code, like a mentor helping a student. Include an analysis of the function's time and space complexity where applicable.
 
 Code:
 ${code}

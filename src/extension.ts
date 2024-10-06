@@ -1,68 +1,83 @@
-// src/extension.ts
-
 import * as vscode from 'vscode';
 import { analyzeCodeWithLLM } from './llmService';
 
 let debounceTimeout: NodeJS.Timeout | undefined;
-let lastSelectionText = '';
+let statusBar: vscode.StatusBarItem;
 
 export function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration('code-function-analysis');
   const autoAnalyze = config.get('autoAnalyzeOnSelection') as boolean;
 
-  if (autoAnalyze) {
-    // Listen for selection changes with debouncing
-    vscode.window.onDidChangeTextEditorSelection(
-      debounce(async (event: vscode.TextEditorSelectionChangeEvent) => {
-        const editor = event.textEditor;
-        const selection = editor.selection;
+  // Initialize status bar item
+  statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+  statusBar.text = 'Code Analysis: Ready';
+  statusBar.show();
 
-        // Only trigger if there's a selection (non-empty)
-        if (!selection.isEmpty) {
-          await analyzeFunction(editor);
-        }
-      }, 1000) // Debounce delay in milliseconds
-    );
-  } else {
-    // Register the command
+  // Handle auto-analysis on selection
+  if (autoAnalyze) {
     context.subscriptions.push(
-      vscode.commands.registerCommand('code-function-analysis.analyzeFunction', async () => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-          await analyzeFunction(editor);
-        } else {
-          vscode.window.showErrorMessage('No active editor found.');
-        }
-      })
+      vscode.window.onDidChangeTextEditorSelection(
+        debounce(async (event: vscode.TextEditorSelectionChangeEvent) => {
+          const editor = event.textEditor;
+          const selection = editor.selection;
+
+          if (!selection.isEmpty) {
+            await analyzeFunction(editor);
+          }
+        }, 1000) // 1-second debounce delay
+      )
     );
-  }
+  } 
+
+  // Register the command for manual analysis
+  context.subscriptions.push(
+    vscode.commands.registerCommand('code-function-analysis.analyzeFunction', async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (editor) {
+        await analyzeFunction(editor);
+      } else {
+        vscode.window.showErrorMessage('No active editor found.');
+      }
+    })
+  );
+
+  // Register right-click context menu command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('code-function-analysis.contextAnalyze', async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (editor) {
+        await analyzeFunction(editor);
+      } else {
+        vscode.window.showErrorMessage('No active editor found.');
+      }
+    })
+  );
+
+  // Add the status bar and commands to context subscriptions
+  context.subscriptions.push(statusBar);
 }
 
 export function deactivate() {}
 
 function debounce(func: Function, wait: number) {
-	return function (...args: any[]) {
-	  if (debounceTimeout) {
-		clearTimeout(debounceTimeout);
-	  }
-	  debounceTimeout = setTimeout(() => {
-		func(...args);
-	  }, wait);
-	};
-  }
+  return function (...args: any[]) {
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+    debounceTimeout = setTimeout(() => {
+      func(...args);
+    }, wait);
+  };
+}
 
 async function analyzeFunction(editor: vscode.TextEditor) {
   const selection = editor.selection;
   const code = editor.document.getText(selection);
-
-  // Avoid re-analyzing the same selection
-  if (code === lastSelectionText) {
-    return;
-  }
-
-  lastSelectionText = code;
-
+  const fileName = editor.document.fileName;
   const languageId = editor.document.languageId;
+
+  // Allow re-analysis of the same selection by removing any cache restrictions
+  statusBar.text = 'Code Analysis: Analyzing...';
 
   // Show progress indicator
   await vscode.window.withProgress(
@@ -74,12 +89,28 @@ async function analyzeFunction(editor: vscode.TextEditor) {
     async (progress) => {
       progress.report({ increment: 0 });
 
-      // Analyze code with LLM
-      const analysisResult = await analyzeCodeWithLLM(code, languageId);
+      let analysisResult: string | null = null;
+
+      try {
+        // Analyze code with LLM
+        analysisResult = await analyzeCodeWithLLM(code, languageId, fileName);
+      } catch (error) {
+        // Retry once if analysis fails
+        statusBar.text = 'Code Analysis: Retry...';
+        try {
+          analysisResult = await analyzeCodeWithLLM(code, languageId, fileName);
+        } catch (retryError) {
+          vscode.window.showErrorMessage('Failed to analyze the selection. Please try again later.');
+          statusBar.text = 'Code Analysis: Failed';
+        }
+      }
 
       if (analysisResult) {
         // Display results
         displayResults(analysisResult);
+        statusBar.text = 'Code Analysis: Complete';
+      } else {
+        statusBar.text = 'Code Analysis: Failed';
       }
 
       progress.report({ increment: 100 });
