@@ -1,0 +1,76 @@
+{
+  "name": "code-function-analysis",
+  "displayName": "Code Function Analysis",
+  "description": "Code Function Analysis is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API, this tool offers comprehensive feedback on various aspects of your code, including performance, naming conventions, code quality, and opportunities for improvement.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onCommand:code-function-analysis.analyzeFunction"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "code-function-analysis.analyzeFunction",
+        "title": "Analyze Selected Function"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Code Function Analysis",
+      "properties": {
+        "code-function-analysis.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your OpenAI API key."
+        },
+        "code-function-analysis.feedbackLevel": {
+          "type": "string",
+          "enum": ["simple", "verbose"],
+          "default": "simple",
+          "description": "Set the level of detail in feedback."
+        },
+        "code-function-analysis.focusAreas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["performance", "style", "readability"]
+          },
+          "default": ["performance", "style", "readability"],
+          "description": "Select the focus areas for feedback."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.94.0",
+    "@types/mocha": "^10.0.8",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "eslint": "^9.11.1",
+    "esbuild": "^0.24.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.6.2",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  },
+  "dependencies": {
+    "axios": "^1.4.0"
+  }
+}
