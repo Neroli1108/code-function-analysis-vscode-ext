@@ -1,13 +1,15 @@
 {
   "name": "code-function-analysis",
   "displayName": "Code Function Analysis",
-  "description": "Code Function Analysis is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API, this tool offers comprehensive feedback on various aspects of your code, including performance, naming conventions, code quality, and opportunities for improvement.",
-  "version": "0.0.1",
+  "description": "Code Function Analysis is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API or Hugging Face's free models, this tool offers comprehensive feedback on various aspects of your code, including performance, naming conventions, code quality, time and space complexity, and opportunities for improvement.",
+  "version": "1.2.0",
   "engines": {
     "vscode": "^1.94.0"
   },
   "categories": ["Other"],
-  "activationEvents": ["onCommand:code-function-analysis.analyzeFunction"],
+  "activationEvents": [
+    "*"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -20,25 +22,41 @@
       "type": "object",
       "title": "Code Function Analysis",
       "properties": {
-        "code-function-analysis.apiKey": {
+        "code-function-analysis.apiProvider": {
+          "type": "string",
+          "enum": ["OpenAI", "HuggingFace"],
+          "default": "HuggingFace",
+          "description": "Select the AI service provider."
+        },
+        "code-function-analysis.openAIApiKey": {
           "type": "string",
           "default": "",
           "description": "Your OpenAI API key."
+        },
+        "code-function-analysis.huggingFaceApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your Hugging Face API token."
         },
         "code-function-analysis.feedbackLevel": {
           "type": "string",
           "enum": ["simple", "verbose"],
           "default": "simple",
-          "description": "Set the level of detail in feedback."
+          "description": "Set the level of detail in feedback. 'verbose' provides detailed pros and cons; 'simple' offers concise feedback."
         },
         "code-function-analysis.focusAreas": {
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["performance", "style", "readability"]
+            "enum": ["performance", "style", "readability", "complexity"]
           },
-          "default": ["performance", "style", "readability"],
+          "default": ["performance", "style", "readability", "complexity"],
           "description": "Select the focus areas for feedback."
+        },
+        "code-function-analysis.autoAnalyzeOnSelection": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically analyze code when it is selected."
         }
       }
     }
