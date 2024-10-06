@@ -41,15 +41,15 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 function debounce(func: Function, wait: number) {
-  return function (...args: any[]) {
-    if (debounceTimeout) {
-      clearTimeout(debounceTimeout);
-    }
-    debounceTimeout = setTimeout(() => {
-      func.apply(this, args);
-    }, wait);
-  };
-}
+	return function (...args: any[]) {
+	  if (debounceTimeout) {
+		clearTimeout(debounceTimeout);
+	  }
+	  debounceTimeout = setTimeout(() => {
+		func(...args);
+	  }, wait);
+	};
+  }
 
 async function analyzeFunction(editor: vscode.TextEditor) {
   const selection = editor.selection;
