@@ -7,9 +7,6 @@
     "vscode": "^1.94.0"
   },
   "categories": ["Other"],
-  "activationEvents": [
-    "*"
-  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
