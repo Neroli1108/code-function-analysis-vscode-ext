@@ -1,8 +1,7 @@
 # Code Function Analysis Extension
 
 **Version:** 1.0.0  
-**Author:** Nero 
-**Repository:** [GitHub Repository Link](https://github.com/Neroli1108/code-function-analysis-vscode-ext)
+**Author:** Nero  
 
 ---
 
