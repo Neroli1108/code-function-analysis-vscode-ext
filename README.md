@@ -1,6 +1,6 @@
 # Code Function Analysis Extension
 
-**Version:** 1.0.0  
+**Version:** 1.2.0 
 **Author:** Nero  
 
 ---
@@ -12,7 +12,7 @@
 - [Installation](#installation)
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
-  - [Setting Up the OpenAI API Key](#setting-up-the-openai-api-key)
+  - [Setting Up the OpenAI or Hugging Face API Key](#setting-up-the-openai-or-hugging-face-api-key)
   - [Configuring Extension Settings](#configuring-extension-settings)
 - [Usage](#usage)
   - [Analyzing a Function](#analyzing-a-function)
@@ -30,7 +30,7 @@
 
 ## Introduction
 
-**Code Function Analysis** is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API, this tool offers comprehensive feedback on various aspects of your code, including:
+**Code Function Analysis** is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API or free models from Hugging Face, this tool offers comprehensive feedback on various aspects of your code, including:
 
 - Performance optimization
 - Naming conventions
@@ -47,7 +47,11 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Mentor-Like Feedback**: Get constructive advice with clear explanations for each recommendation.
 - **Interactive Learning**: Access relevant documentation and examples for further learning.
 - **Feedback Customization**: Tailor the analysis focus and feedback level to your preferences.
-- **Multi-Language Support**: Initially supports Python, with plans to extend to JavaScript, Java, C++, and more.
+- **Multi-Language Support**: Supports Python, JavaScript, Java, C++, and more.
+- **Automatic Selection Analysis**: Automatically analyzes selected code with debouncing to prevent excessive requests.
+- **Retry Logic for Analysis Requests**: Retries analysis if the initial request fails.
+- **Status Bar Updates**: Real-time status updates during code analysis.
+- **Supports OpenAI and Hugging Face Models**: Switch between OpenAI and Hugging Face for flexibility.
 
 ## Installation
 
@@ -92,27 +96,31 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 - **Visual Studio Code** version `1.94.0` or higher.
 - **Node.js** version `14.x` or higher.
-- An **OpenAI API Key** with access to the GPT-4 model.
+- An **OpenAI API Key** with access to the GPT-4 model, or a **Hugging Face API Key**.
 
 ## Getting Started
 
-### Setting Up the OpenAI API Key
+### Setting Up the OpenAI or Hugging Face API Key
 
 1. **Obtain an API Key**:
 
-   - Sign up or log in to the [OpenAI Platform](https://platform.openai.com/).
-   - Navigate to the API keys section and generate a new secret key.
+   - For **OpenAI**: Sign up or log in to the [OpenAI Platform](https://platform.openai.com/), navigate to the API keys section, and generate a new secret key.
+   - For **Hugging Face**: Sign up or log in to the [Hugging Face Platform](https://huggingface.co/), and navigate to your account settings to generate an API key.
 
 2. **Configure the API Key in VS Code**:
 
    - Open Visual Studio Code.
    - Go to `File` > `Preferences` > `Settings` (or `Code` > `Preferences` > `Settings` on macOS).
    - Search for `Code Function Analysis`.
-   - Enter your API key in the `Code-function-analysis: Api Key` field.
+   - Enter your API key in the `Code-function-analysis: Api Key` field for OpenAI or the `Hugging Face API Key` field for Hugging Face.
 
    **Note**: Keep your API key secure and do not share it publicly.
 
 ### Configuring Extension Settings
+
+- **API Provider**:
+
+  - Choose between `"OpenAI"` or `"HuggingFace"` for analysis.
 
 - **Feedback Level**:
 
@@ -120,7 +128,11 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 - **Focus Areas**:
 
-  - Select the focus areas for analysis: `performance`, `style`, `readability`.
+  - Select the focus areas for analysis: `performance`, `style`, `readability`, `complexity`.
+
+- **Automatic Analysis**:
+
+  - Enable or disable automatic analysis when code is selected.
 
 ## Usage
 
@@ -139,9 +151,17 @@ Transform your coding experience with mentor-like suggestions and best practices
    - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
    - Type `Analyze Selected Function` and select the command.
 
-4. **View the Analysis**:
+4. **Automatic Analysis (if enabled)**:
+
+   - Code analysis will automatically trigger when you select code, with a 1-second debounce to prevent excessive requests.
+
+5. **View the Analysis**:
 
    - A new panel will display the analysis, including suggestions and improvements.
+
+6. **Status Bar**:
+
+   - The status bar at the bottom left will display real-time updates, such as "Analyzing...", "Complete", or "Failed".
 
 ## Commands
 
@@ -152,10 +172,23 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 ## Extension Settings
 
-- **`code-function-analysis.apiKey`**:
+- **`code-function-analysis.apiProvider`**:
+
+  - **Type**: `string`
+  - **Options**: `"OpenAI"`, `"HuggingFace"`
+  - **Description**: Select the AI service provider for code analysis.
+  - **Default**: `"HuggingFace"`
+
+- **`code-function-analysis.openAIApiKey`**:
 
   - **Type**: `string`
   - **Description**: Your OpenAI API key.
+  - **Default**: `""` (empty string)
+
+- **`code-function-analysis.huggingFaceApiKey`**:
+
+  - **Type**: `string`
+  - **Description**: Your Hugging Face API key.
   - **Default**: `""` (empty string)
 
 - **`code-function-analysis.feedbackLevel`**:
@@ -168,9 +201,15 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **`code-function-analysis.focusAreas`**:
 
   - **Type**: `array`
-  - **Items**: `"performance"`, `"style"`, `"readability"`
+  - **Items**: `"performance"`, `"style"`, `"readability"`, `"complexity"`
   - **Description**: Select the focus areas for feedback.
-  - **Default**: `["performance", "style", "readability"]`
+  - **Default**: `["performance", "style", "readability", "complexity"]`
+
+- **`code-function-analysis.autoAnalyzeOnSelection`**:
+
+  - **Type**: `boolean`
+  - **Description**: Automatically analyze code when it is selected.
+  - **Default**: `false`
 
 ## Development
 
@@ -212,10 +251,10 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 ## Troubleshooting
 
-- **Failed to Get Response from OpenAI API**:
+- **Failed to Get Response from API**:
 
   - Ensure your API key is correctly set and has the necessary permissions.
-  - Verify that you have access to the GPT-4 model.
+  - Verify that you have access to the selected model.
   - Check your internet connection and firewall settings.
   - Review the detailed error messages for specific issues.
 
@@ -231,7 +270,9 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are
+
+ welcome! Please follow these steps:
 
 1. **Fork the Repository**:
 
@@ -266,9 +307,10 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Acknowledgments
 
 - **OpenAI** for providing the GPT-4 API.
+- **Hugging Face** for free AI models.
 - **Visual Studio Code** for the extension platform.
 - **Community Contributors** for their valuable feedback and contributions.
 
 ---
 
-**Disclaimer**: This extension sends code snippets to the OpenAI API for analysis. Please ensure compliance with your organization's policies regarding code sharing and avoid sharing sensitive or proprietary code.
+**Disclaimer**: This extension sends code snippets to third-party APIs for analysis. Please ensure compliance with your organization's policies regarding code sharing and avoid sharing sensitive or proprietary code.
