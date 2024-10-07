@@ -10,6 +10,14 @@
     "Other"
   ],
   "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:python",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:java",
+    "onLanguage:cpp",
+    "onCommand:code-function-analysis.analyzeFunction"
+  ],
   "contributes": {
     "commands": [
       {
