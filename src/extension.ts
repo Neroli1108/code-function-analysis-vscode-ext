@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 import { analyzeCodeWithLLM } from './llmService';
+import { marked } from 'marked';
+import { expandSelectionToFullFunction } from './functionCapture';
+
 
 let debounceTimeout: NodeJS.Timeout | undefined;
 let statusBar: vscode.StatusBarItem;
@@ -71,7 +74,13 @@ function debounce(func: Function, wait: number) {
 }
 
 async function analyzeFunction(editor: vscode.TextEditor) {
-  const selection = editor.selection;
+
+  const document = editor.document;
+  let selection = editor.selection;
+  
+	// Expand selection to the full function if it's a single line
+  selection = expandSelectionToFullFunction(document, selection);
+  
   const code = editor.document.getText(selection);
   const fileName = editor.document.fileName;
   const languageId = editor.document.languageId;
@@ -118,6 +127,7 @@ async function analyzeFunction(editor: vscode.TextEditor) {
   );
 }
 
+
 function displayResults(results: string) {
   const panel = vscode.window.createWebviewPanel(
     'functionAnalysis',
@@ -133,13 +143,10 @@ function displayResults(results: string) {
 }
 
 function getWebviewContent(results: string): string {
-  // Sanitize the results to prevent HTML injection
-  const escapedResults = results
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br>');
+  // Convert markdown to HTML
+  const htmlContent = marked(results);
 
+  // Construct the full HTML for the webview
   return `
     <!DOCTYPE html>
     <html lang="en">
@@ -154,8 +161,50 @@ function getWebviewContent(results: string): string {
       </style>
     </head>
     <body>
-      <div>${escapedResults}</div>
+      ${htmlContent}
     </body>
     </html>
   `;
 }
+
+// function displayResults(results: string) {
+//   const panel = vscode.window.createWebviewPanel(
+//     'functionAnalysis',
+//     'Function Analysis',
+//     vscode.ViewColumn.Beside,
+//     {
+//       enableScripts: true,
+//       retainContextWhenHidden: true,
+//     }
+//   );
+  
+//   panel.webview.html = getWebviewContent(results);
+// }
+
+// function getWebviewContent(results: string): string {
+//   // Sanitize the results to prevent HTML injection
+//   const escapedResults = results
+//     .replace(/&/g, '&amp;')
+//     .replace(/</g, '&lt;')
+//     .replace(/>/g, '&gt;')
+//     .replace(/\n/g, '<br>');
+
+//   return `
+//     <!DOCTYPE html>
+//     <html lang="en">
+//     <head>
+//       <meta charset="UTF-8">
+//       <title>Function Analysis</title>
+//       <style>
+//         body { font-family: sans-serif; padding: 10px; }
+//         pre { background-color: #f3f3f3; padding: 10px; border-radius: 5px; overflow-x: auto; }
+//         a { color: #0066cc; text-decoration: none; }
+//         a:hover { text-decoration: underline; }
+//       </style>
+//     </head>
+//     <body>
+//       <div>${escapedResults}</div>
+//     </body>
+//     </html>
+//   `;
+// }

@@ -100,7 +100,12 @@
           "type": "boolean",
           "default": false,
           "description": "Automatically analyze code when it is selected."
-        }
+        },
+        "code-function-analysis.expandSelectionToFunction": {
+        "type": "boolean",
+        "default": true,
+        "description": "Toggle whether to expand selection to the full function when a single line is selected."
+      }
       }
     }
   },
@@ -133,6 +138,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "axios": "^1.4.0"
+    "axios": "^1.4.0",
+    "marked": "^14.1.2"
   }
 }
