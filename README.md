@@ -1,6 +1,6 @@
 # Code Function Analysis Extension
 
-**Version:** 1.2.0 
+**Version:** 1.2.0  
 **Author:** Nero  
 
 ---
@@ -12,7 +12,7 @@
 - [Installation](#installation)
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
-  - [Setting Up the OpenAI or Hugging Face API Key](#setting-up-the-openai-or-hugging-face-api-key)
+  - [Setting Up the OpenAI, Hugging Face, or Google Gemini API Key](#setting-up-the-openai-hugging-face-or-google-gemini-api-key)
   - [Configuring Extension Settings](#configuring-extension-settings)
 - [Usage](#usage)
   - [Analyzing a Function](#analyzing-a-function)
@@ -30,7 +30,7 @@
 
 ## Introduction
 
-**Code Function Analysis** is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API or free models from Hugging Face, this tool offers comprehensive feedback on various aspects of your code, including:
+**Code Function Analysis** is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API, free models from Hugging Face, and Google's Gemini AI models, this tool offers comprehensive feedback on various aspects of your code, including:
 
 - Performance optimization
 - Naming conventions
@@ -51,7 +51,10 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Automatic Selection Analysis**: Automatically analyzes selected code with debouncing to prevent excessive requests.
 - **Retry Logic for Analysis Requests**: Retries analysis if the initial request fails.
 - **Status Bar Updates**: Real-time status updates during code analysis.
-- **Supports OpenAI and Hugging Face Models**: Switch between OpenAI and Hugging Face for flexibility.
+- **Supports Multiple AI Models**:
+  - **OpenAI Models**: Use GPT-4 for sophisticated analysis.
+  - **Hugging Face Models**: Access a variety of free language models.
+  - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis.
 
 ## Installation
 
@@ -96,23 +99,24 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 - **Visual Studio Code** version `1.94.0` or higher.
 - **Node.js** version `14.x` or higher.
-- An **OpenAI API Key** with access to the GPT-4 model, or a **Hugging Face API Key**.
+- An **API Key** for OpenAI, Hugging Face, or Google Gemini, depending on the models you want to use.
 
 ## Getting Started
 
-### Setting Up the OpenAI or Hugging Face API Key
+### Setting Up the OpenAI, Hugging Face, or Google Gemini API Key
 
 1. **Obtain an API Key**:
 
    - For **OpenAI**: Sign up or log in to the [OpenAI Platform](https://platform.openai.com/), navigate to the API keys section, and generate a new secret key.
    - For **Hugging Face**: Sign up or log in to the [Hugging Face Platform](https://huggingface.co/), and navigate to your account settings to generate an API key.
+   - For **Google Gemini**: Follow the setup instructions to obtain your Gemini AI API key (visit [Google AI Platform](https://ai.google.com/) for more information).
 
 2. **Configure the API Key in VS Code**:
 
    - Open Visual Studio Code.
    - Go to `File` > `Preferences` > `Settings` (or `Code` > `Preferences` > `Settings` on macOS).
    - Search for `Code Function Analysis`.
-   - Enter your API key in the `Code-function-analysis: Api Key` field for OpenAI or the `Hugging Face API Key` field for Hugging Face.
+   - Enter your API key in the appropriate field for the AI service you wish to use (OpenAI, Hugging Face, or Google Gemini).
 
    **Note**: Keep your API key secure and do not share it publicly.
 
@@ -120,7 +124,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 - **API Provider**:
 
-  - Choose between `"OpenAI"` or `"HuggingFace"` for analysis.
+  - Choose between `"OpenAI"`, `"HuggingFace"`, or `"GoogleGemini"` for analysis.
 
 - **Feedback Level**:
 
@@ -175,7 +179,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **`code-function-analysis.apiProvider`**:
 
   - **Type**: `string`
-  - **Options**: `"OpenAI"`, `"HuggingFace"`
+  - **Options**: `"OpenAI"`, `"HuggingFace"`, `"GoogleGemini"`
   - **Description**: Select the AI service provider for code analysis.
   - **Default**: `"HuggingFace"`
 
@@ -189,6 +193,12 @@ Transform your coding experience with mentor-like suggestions and best practices
 
   - **Type**: `string`
   - **Description**: Your Hugging Face API key.
+  - **Default**: `""` (empty string)
+
+- **`code-function-analysis.googleGeminiApiKey`**:
+
+  - **Type**: `string`
+  - **Description**: Your Google Gemini API key.
   - **Default**: `""` (empty string)
 
 - **`code-function-analysis.feedbackLevel`**:
@@ -270,9 +280,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 ## Contributing
 
-Contributions are
-
- welcome! Please follow these steps:
+Contributions are welcome! Please follow these steps:
 
 1. **Fork the Repository**:
 
@@ -302,12 +310,13 @@ Contributions are
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/Neroli1108/code-function-analysis-vscode-ext/blob/main/LICENSE) file for details.
 
 ## Acknowledgments
 
 - **OpenAI** for providing the GPT-4 API.
 - **Hugging Face** for free AI models.
+- **Google** for providing the Gemini AI models.
 - **Visual Studio Code** for the extension platform.
 - **Community Contributors** for their valuable feedback and contributions.
 
