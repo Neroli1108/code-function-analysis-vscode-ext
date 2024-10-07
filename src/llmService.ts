@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as vscode from 'vscode';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function analyzeCodeWithLLM(code: string, languageId: string, fileName: string): Promise<string> {
   const config = vscode.workspace.getConfiguration('code-function-analysis');
@@ -12,6 +13,9 @@ export async function analyzeCodeWithLLM(code: string, languageId: string, fileN
       break;
     case 'HuggingFace':
       result = await analyzeWithHuggingFace(code, languageId, fileName, config);
+      break;
+    case 'GoogleGemini':
+      result = await analyzeWithGoogleGemini(code, languageId, fileName, config);
       break;
     default:
       vscode.window.showErrorMessage('Invalid API provider selected.');
@@ -35,7 +39,7 @@ async function analyzeWithOpenAI(code: string, languageId: string, fileName: str
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
-        model: 'gpt-4', // or 'gpt-3.5-turbo' if you don't have access to GPT-4
+        model: 'gpt-4',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 1500,
         temperature: 0.7,
@@ -99,6 +103,29 @@ async function analyzeWithHuggingFace(code: string, languageId: string, fileName
   }
 }
 
+// ToDo: Add Google Gemini 
+async function analyzeWithGoogleGemini(code: string, languageId: string, fileName: string, config: vscode.WorkspaceConfiguration): Promise<string> {
+  const apiKey = config.get('googleGeminiApiKey') as string;
+  const model_name = config.get('googleGeminiModel') as string || 'gemini-1.5-flash';
+
+  if (!apiKey) {
+    vscode.window.showErrorMessage('Google Gemini API key is not set. Please set it in the extension settings.');
+    return '';
+  }
+
+  const prompt = buildPrompt(code, languageId, fileName, config);
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: model_name });
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error: any) {
+    handleApiError(error, 'Google Gemini');
+    return '';
+  }
+}
+
 function buildPrompt(code: string, languageId: string, fileName: string, config: vscode.WorkspaceConfiguration): string {
   const feedbackLevel = config.get('feedbackLevel') as string || 'simple';
   const focusAreas = config.get('focusAreas') as string[] || ['performance', 'style', 'readability', 'complexity'];
@@ -125,7 +152,6 @@ function buildPrompt(code: string, languageId: string, fileName: string, config:
 
   const focusAreasText = focusAreas.join(', ');
 
-  // Create feedback instruction to include corrections and explanations
   let feedbackInstruction = feedbackLevel === 'verbose'
     ? `Provide detailed feedback with pros and cons of each suggestion. If there are mistakes in the code, highlight them, correct the code, and explain why the changes improve it. Act like a mentor, guiding the user to write better code.`
     : `Provide concise feedback. If there are mistakes in the code, highlight them, provide corrections, and explain why the changes improve the code.`;

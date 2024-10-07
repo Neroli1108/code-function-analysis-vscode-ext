@@ -6,7 +6,9 @@
   "engines": {
     "vscode": "^1.94.0"
   },
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -21,8 +23,12 @@
       "properties": {
         "code-function-analysis.apiProvider": {
           "type": "string",
-          "enum": ["OpenAI", "HuggingFace"],
-          "default": "HuggingFace",
+          "enum": [
+            "OpenAI",
+            "HuggingFace",
+            "GoogleGemini"
+          ],
+          "default": "GoogleGemini",
           "description": "Select the AI service provider."
         },
         "code-function-analysis.openAIApiKey": {
@@ -35,6 +41,11 @@
           "default": "",
           "description": "Your Hugging Face API token."
         },
+        "code-function-analysis.googleGeminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your Gemini API key."
+        },
         "code-function-analysis.huggingFaceModel": {
           "type": "string",
           "enum": [
@@ -46,9 +57,23 @@
           "default": "EleutherAI/gpt-neo-2.7B",
           "description": "Select the Hugging Face model to use."
         },
+        "code-function-analysis.googleGeminiModel": {
+          "type": "string",
+          "enum": [
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-8b",
+            "gemini-1.5-pro",
+            "gemini-1.0-pro"
+          ],
+          "default": "gemini-1.5-flash",
+          "description": "Select the Gemini model to use."
+        },
         "code-function-analysis.feedbackLevel": {
           "type": "string",
-          "enum": ["simple", "verbose"],
+          "enum": [
+            "simple",
+            "verbose"
+          ],
           "default": "simple",
           "description": "Set the level of detail in feedback. 'verbose' provides detailed pros and cons; 'simple' offers concise feedback."
         },
@@ -56,9 +81,19 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["performance", "style", "readability", "complexity"]
+            "enum": [
+              "performance",
+              "style",
+              "readability",
+              "complexity"
+            ]
           },
-          "default": ["performance", "style", "readability", "complexity"],
+          "default": [
+            "performance",
+            "style",
+            "readability",
+            "complexity"
+          ],
           "description": "Select the focus areas for feedback."
         },
         "code-function-analysis.autoAnalyzeOnSelection": {
@@ -84,19 +119,20 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.94.0",
     "@types/mocha": "^10.0.8",
     "@types/node": "20.x",
+    "@types/vscode": "^1.94.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
-    "eslint": "^9.11.1",
-    "esbuild": "^0.24.0",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^5.6.2",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.11.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.6.2"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "axios": "^1.4.0"
   }
 }
