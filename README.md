@@ -1,7 +1,7 @@
 # Code Function Analysis Extension
 
-**Version:** 1.2.0  
-**Author:** Nero  
+**Version:** 1.5.0  
+**Author:** Nero
 
 ---
 
@@ -49,18 +49,19 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Feedback Customization**: Tailor the analysis focus and feedback level to your preferences.
 - **Multi-Language Support**: Supports Python, JavaScript, Java, C++, and more.
 - **Automatic Selection Analysis**: Automatically analyzes selected code with debouncing to prevent excessive requests.
-- **Retry Logic for Analysis Requests**: Retries analysis if the initial request fails.
+- **Retry Logic for Analysis Requests**: Automatically retries analysis if the initial request fails, with enhanced handling for models that are loading.
 - **Status Bar Updates**: Real-time status updates during code analysis.
 - **Supports Multiple AI Models**:
   - **OpenAI Models**: Use GPT-4 for sophisticated analysis.
-  - **Hugging Face Models**: Access a variety of free language models.
+  - **Hugging Face Models**: Access a variety of free language models, including `nvidia/NVLM-D-72B`.
   - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis.
+- **Custom Model Support**: Ability to specify any Hugging Face model by entering the model name in the extension settings.
 
 ## Installation
 
 ### From the VS Code Marketplace
 
-*(Coming Soon)*
+_(Coming Soon)_
 
 ### Manual Installation
 
@@ -126,6 +127,10 @@ Transform your coding experience with mentor-like suggestions and best practices
 
   - Choose between `"OpenAI"`, `"HuggingFace"`, or `"GoogleGemini"` for analysis.
 
+- **Hugging Face Model Selection**:
+
+  - Choose from the pre-defined models or set `"custom"` and specify your desired model name for analysis.
+
 - **Feedback Level**:
 
   - Choose between `"simple"` or `"verbose"` feedback.
@@ -165,7 +170,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 6. **Status Bar**:
 
-   - The status bar at the bottom left will display real-time updates, such as "Analyzing...", "Complete", or "Failed".
+   - The status bar at the bottom left will display real-time updates, such as "Analyzing...", "Complete", or "Retrying..." when applicable.
 
 ## Commands
 
@@ -195,6 +200,18 @@ Transform your coding experience with mentor-like suggestions and best practices
   - **Description**: Your Hugging Face API key.
   - **Default**: `""` (empty string)
 
+- **`code-function-analysis.huggingFaceModel`**:
+
+  - **Type**: `string`
+  - **Description**: Select a predefined Hugging Face model or set `"custom"` to use your own model.
+  - **Default**: `"EleutherAI/gpt-neo-2.7B"`
+
+- **`code-function-analysis.huggingFaceCustomModel`**:
+
+  - **Type**: `string`
+  - **Description**: Specify a custom Hugging Face model name if `"custom"` is selected.
+  - **Default**: `""` (empty string)
+
 - **`code-function-analysis.googleGeminiApiKey`**:
 
   - **Type**: `string`
@@ -213,7 +230,9 @@ Transform your coding experience with mentor-like suggestions and best practices
   - **Type**: `array`
   - **Items**: `"performance"`, `"style"`, `"readability"`, `"complexity"`
   - **Description**: Select the focus areas for feedback.
-  - **Default**: `["performance", "style", "readability", "complexity"]`
+  - \*\*
+
+Default\*\*: `["performance", "style", "readability", "complexity"]`
 
 - **`code-function-analysis.autoAnalyzeOnSelection`**:
 

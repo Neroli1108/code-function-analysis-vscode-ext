@@ -60,10 +60,17 @@
             "EleutherAI/gpt-neo-2.7B",
             "facebook/opt-1.3b",
             "bigscience/bloom-1b1",
-            "google/flan-t5-large"
+            "google/flan-t5-large",
+            "nvidia/NVLM-D-72B",
+            "custom"
           ],
           "default": "EleutherAI/gpt-neo-2.7B",
           "description": "Select the Hugging Face model to use."
+        },
+        "code-function-analysis.huggingFaceCustomModel": {
+          "type": "string",
+          "default": "",
+          "description": "Enter a custom Hugging Face model name to use when 'custom' is selected above."
         },
         "code-function-analysis.googleGeminiModel": {
           "type": "string",
@@ -110,10 +117,10 @@
           "description": "Automatically analyze code when it is selected."
         },
         "code-function-analysis.expandSelectionToFunction": {
-        "type": "boolean",
-        "default": true,
-        "description": "Toggle whether to expand selection to the full function when a single line is selected."
-      }
+          "type": "boolean",
+          "default": true,
+          "description": "Toggle whether to expand selection to the full function when a single line is selected."
+        }
       }
     }
   },
