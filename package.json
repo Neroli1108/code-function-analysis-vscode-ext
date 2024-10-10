@@ -17,15 +17,35 @@
     "onLanguage:typescript",
     "onLanguage:java",
     "onLanguage:cpp",
-    "onCommand:code-function-analysis.analyzeFunction"
+    "onCommand:code-function-analysis.analyzeFunction",
+    "onCommand:code-function-analysis.generateUnitTest"
   ],
   "contributes": {
     "commands": [
       {
         "command": "code-function-analysis.analyzeFunction",
         "title": "Analyze Selected Function"
+      },
+      {
+        "command": "code-function-analysis.generateUnitTest",
+        "title": "Generate Unit Test for Selected Function",
+        "category": "Code Function Analysis"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "code-function-analysis.analyzeFunction",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        },
+        {
+          "command": "code-function-analysis.generateUnitTest",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Code Function Analysis",
@@ -158,8 +178,8 @@
     "marked": "^14.1.2"
   },
   "repository": {
-  "type": "git",
-  "url": "https://github.com/Neroli1108/code-function-analysis-vscode-ext.git"
-},
-"publisher": "Nero375"
+    "type": "git",
+    "url": "https://github.com/Neroli1108/code-function-analysis-vscode-ext.git"
+  },
+  "publisher": "Nero375"
 }

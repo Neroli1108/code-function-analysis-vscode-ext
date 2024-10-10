@@ -34,6 +34,62 @@ export async function analyzeCodeWithLLM(
   return result;
 }
 
+// New function to generate unit tests using LLM
+export async function generateFunctionUnitTest(
+  code: string,
+  languageId: string,
+  fileName: string
+): Promise<string> {
+  const config = vscode.workspace.getConfiguration("code-function-analysis");
+  const provider = (config.get("apiProvider") as string) || "HuggingFace";
+  let result = "";
+
+  switch (provider) {
+    case "OpenAI":
+      result = await generateUnitTestWithOpenAI(
+        code,
+        languageId,
+        fileName,
+        config
+      );
+      break;
+    case "HuggingFace":
+      result = await generateUnitTestWithHuggingFace(
+        code,
+        languageId,
+        fileName,
+        config
+      );
+      break;
+    case "GoogleGemini":
+      result = await generateUnitTestWithGoogleGemini(
+        code,
+        languageId,
+        fileName,
+        config
+      );
+      break;
+    default:
+      vscode.window.showErrorMessage("Invalid API provider selected.");
+      return "";
+  }
+
+  return result;
+}
+
+// Helper function to generate prompt for unit test generation
+function buildUnitTestPrompt(
+  code: string,
+  languageId: string,
+  fileName: string,
+  config: vscode.WorkspaceConfiguration
+): string {
+  return `You are an expert software engineer. Generate a comprehensive set of unit tests for the following ${languageId} function, including edge cases and boundary tests. Use the best practices and conventions for unit testing in ${languageId}.
+
+Function Code:
+${code}`;
+}
+
 async function analyzeWithOpenAI(
   code: string,
   languageId: string,
@@ -75,6 +131,47 @@ async function analyzeWithOpenAI(
   }
 }
 
+async function generateUnitTestWithOpenAI(
+  code: string,
+  languageId: string,
+  fileName: string,
+  config: vscode.WorkspaceConfiguration
+): Promise<string> {
+  const apiKey = config.get("openAIApiKey") as string;
+
+  if (!apiKey) {
+    vscode.window.showErrorMessage(
+      "OpenAI API key is not set. Please set it in the extension settings."
+    );
+    return "";
+  }
+
+  const prompt = buildUnitTestPrompt(code, languageId, fileName, config);
+
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 1500,
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+      }
+    );
+
+    return response.data.choices[0].message.content.trim();
+  } catch (error: any) {
+    handleApiError(error, "OpenAI");
+    return "";
+  }
+}
+
 async function analyzeWithHuggingFace(
   code: string,
   languageId: string,
@@ -85,7 +182,6 @@ async function analyzeWithHuggingFace(
   let model =
     (config.get("huggingFaceModel") as string) || "EleutherAI/gpt-neo-2.7B";
 
-  // If "custom" is selected, use the custom model name provided by the user
   if (model === "custom") {
     const customModel = config.get("huggingFaceCustomModel") as string;
     if (!customModel) {
@@ -97,7 +193,6 @@ async function analyzeWithHuggingFace(
     model = customModel;
   }
 
-  // Check if the API key is provided
   if (!apiKey) {
     vscode.window.showErrorMessage(
       "Hugging Face API key is not set. Please set it in the extension settings."
@@ -107,21 +202,18 @@ async function analyzeWithHuggingFace(
 
   const prompt = buildPrompt(code, languageId, fileName, config);
 
-  // Construct payload and headers
   const payload: any = { inputs: prompt };
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${apiKey}`,
   };
 
-  // Add parameters conditionally based on model support
   const modelsSupportingParameters = [
     "EleutherAI/gpt-neo-2.7B",
     "bigscience/bloom-1b1",
     "google/flan-t5-large",
     "facebook/opt-1.3b",
     "nvidia/NVLM-D-72B",
-    // Add more models if they are known to support these parameters
   ];
 
   if (modelsSupportingParameters.includes(model)) {
@@ -138,7 +230,6 @@ async function analyzeWithHuggingFace(
       { headers }
     );
 
-    // Handle response format
     if (response.data && response.data.generated_text) {
       return response.data.generated_text.trim();
     } else if (Array.isArray(response.data)) {
@@ -156,7 +247,81 @@ async function analyzeWithHuggingFace(
   }
 }
 
-// ToDo: Add Google Gemini
+async function generateUnitTestWithHuggingFace(
+  code: string,
+  languageId: string,
+  fileName: string,
+  config: vscode.WorkspaceConfiguration
+): Promise<string> {
+  const apiKey = config.get("huggingFaceApiKey") as string;
+  let model =
+    (config.get("huggingFaceModel") as string) || "EleutherAI/gpt-neo-2.7B";
+
+  if (model === "custom") {
+    const customModel = config.get("huggingFaceCustomModel") as string;
+    if (!customModel) {
+      vscode.window.showErrorMessage(
+        "Custom model is not set. Please provide a custom Hugging Face model name."
+      );
+      return "";
+    }
+    model = customModel;
+  }
+
+  if (!apiKey) {
+    vscode.window.showErrorMessage(
+      "Hugging Face API key is not set. Please set it in the extension settings."
+    );
+    return "";
+  }
+
+  const prompt = buildUnitTestPrompt(code, languageId, fileName, config);
+
+  const payload: any = { inputs: prompt };
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${apiKey}`,
+  };
+
+  const modelsSupportingParameters = [
+    "EleutherAI/gpt-neo-2.7B",
+    "bigscience/bloom-1b1",
+    "google/flan-t5-large",
+    "facebook/opt-1.3b",
+    "nvidia/NVLM-D-72B",
+  ];
+
+  if (modelsSupportingParameters.includes(model)) {
+    payload.parameters = {
+      max_new_tokens: 700,
+      temperature: 0.7,
+    };
+  }
+
+  try {
+    const response = await axios.post(
+      `https://api-inference.huggingface.co/models/${model}`,
+      payload,
+      { headers }
+    );
+
+    if (response.data && response.data.generated_text) {
+      return response.data.generated_text.trim();
+    } else if (Array.isArray(response.data)) {
+      return response.data[0].generated_text.trim();
+    } else {
+      vscode.window.showErrorMessage(
+        "Unexpected response format from Hugging Face API."
+      );
+      console.error("Response:", response.data);
+      return "";
+    }
+  } catch (error: any) {
+    handleApiError(error, "Hugging Face");
+    return "";
+  }
+}
+
 async function analyzeWithGoogleGemini(
   code: string,
   languageId: string,
@@ -175,6 +340,36 @@ async function analyzeWithGoogleGemini(
   }
 
   const prompt = buildPrompt(code, languageId, fileName, config);
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: model_name });
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error: any) {
+    handleApiError(error, "Google Gemini");
+    return "";
+  }
+}
+
+async function generateUnitTestWithGoogleGemini(
+  code: string,
+  languageId: string,
+  fileName: string,
+  config: vscode.WorkspaceConfiguration
+): Promise<string> {
+  const apiKey = config.get("googleGeminiApiKey") as string;
+  const model_name =
+    (config.get("googleGeminiModel") as string) || "gemini-1.5-flash";
+
+  if (!apiKey) {
+    vscode.window.showErrorMessage(
+      "Google Gemini API key is not set. Please set it in the extension settings."
+    );
+    return "";
+  }
+
+  const prompt = buildUnitTestPrompt(code, languageId, fileName, config);
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);

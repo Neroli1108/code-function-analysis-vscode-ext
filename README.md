@@ -1,6 +1,6 @@
 # Code Function Analysis Extension
 
-**Version:** 1.5.0  
+**Version:** 1.6.0  
 **Author:** Nero
 
 ---
@@ -16,6 +16,7 @@
   - [Configuring Extension Settings](#configuring-extension-settings)
 - [Usage](#usage)
   - [Analyzing a Function](#analyzing-a-function)
+  - [Generating Unit Tests](#generating-unit-tests)
 - [Commands](#commands)
 - [Extension Settings](#extension-settings)
 - [Development](#development)
@@ -36,6 +37,7 @@
 - Naming conventions
 - Code quality
 - Opportunities for improvement
+- **Unit Test Generation**: Generate unit tests for selected functions using AI models.
 
 Transform your coding experience with mentor-like suggestions and best practices to enhance your code's readability, maintainability, and efficiency.
 
@@ -50,18 +52,19 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Multi-Language Support**: Supports Python, JavaScript, Java, C++, and more.
 - **Automatic Selection Analysis**: Automatically analyzes selected code with debouncing to prevent excessive requests.
 - **Retry Logic for Analysis Requests**: Automatically retries analysis if the initial request fails, with enhanced handling for models that are loading.
-- **Status Bar Updates**: Real-time status updates during code analysis.
+- **Unit Test Generation**: Automatically generate unit tests for selected functions.
+- **Status Bar Updates**: Real-time status updates during code analysis and unit test generation.
 - **Supports Multiple AI Models**:
-  - **OpenAI Models**: Use GPT-4 for sophisticated analysis.
+  - **OpenAI Models**: Use GPT-4 for sophisticated analysis and unit test generation.
   - **Hugging Face Models**: Access a variety of free language models, including `nvidia/NVLM-D-72B`.
-  - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis.
+  - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis and unit test generation.
 - **Custom Model Support**: Ability to specify any Hugging Face model by entering the model name in the extension settings.
 
 ## Installation
 
 ### From the VS Code Marketplace
 
-_(Coming Soon)_
+[Link](https://marketplace.visualstudio.com/items?itemName=Nero375.code-function-analysis/)
 
 ### Manual Installation
 
@@ -125,11 +128,11 @@ _(Coming Soon)_
 
 - **API Provider**:
 
-  - Choose between `"OpenAI"`, `"HuggingFace"`, or `"GoogleGemini"` for analysis.
+  - Choose between `"OpenAI"`, `"HuggingFace"`, or `"GoogleGemini"` for analysis and unit test generation.
 
 - **Hugging Face Model Selection**:
 
-  - Choose from the pre-defined models or set `"custom"` and specify your desired model name for analysis.
+  - Choose from the pre-defined models or set `"custom"` and specify your desired model name for analysis or unit test generation.
 
 - **Feedback Level**:
 
@@ -172,6 +175,25 @@ _(Coming Soon)_
 
    - The status bar at the bottom left will display real-time updates, such as "Analyzing...", "Complete", or "Retrying..." when applicable.
 
+### Generating Unit Tests
+
+1. **Open a Code File**:
+
+   - Open a code file in a supported language (e.g., Python).
+
+2. **Select a Function**:
+
+   - Highlight the function code you want to generate unit tests for.
+
+3. **Run the Generate Unit Test Command**:
+
+   - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
+   - Type `Generate Unit Test for Selected Function` and select the command.
+
+4. **View the Generated Unit Tests**:
+
+   - A new panel will display the generated unit tests, including test cases and edge cases where applicable.
+
 ## Commands
 
 - **Analyze Selected Function**:
@@ -179,13 +201,18 @@ _(Coming Soon)_
   - **Command ID**: `code-function-analysis.analyzeFunction`
   - **Description**: Analyzes the selected code function and provides feedback.
 
+- **Generate Unit Test for Selected Function**:
+
+  - **Command ID**: `code-function-analysis.generateUnitTest`
+  - **Description**: Generates unit tests for the selected function using AI models.
+
 ## Extension Settings
 
 - **`code-function-analysis.apiProvider`**:
 
   - **Type**: `string`
   - **Options**: `"OpenAI"`, `"HuggingFace"`, `"GoogleGemini"`
-  - **Description**: Select the AI service provider for code analysis.
+  - **Description**: Select the AI service provider for code analysis and unit test generation.
   - **Default**: `"HuggingFace"`
 
 - **`code-function-analysis.openAIApiKey`**:
@@ -204,7 +231,9 @@ _(Coming Soon)_
 
   - **Type**: `string`
   - **Description**: Select a predefined Hugging Face model or set `"custom"` to use your own model.
-  - **Default**: `"EleutherAI/gpt-neo-2.7B"`
+  - **Default**
+
+: `"EleutherAI/gpt-neo-2.7B"`
 
 - **`code-function-analysis.huggingFaceCustomModel`**:
 
@@ -230,9 +259,7 @@ _(Coming Soon)_
   - **Type**: `array`
   - **Items**: `"performance"`, `"style"`, `"readability"`, `"complexity"`
   - **Description**: Select the focus areas for feedback.
-  - \*\*
-
-Default\*\*: `["performance", "style", "readability", "complexity"]`
+  - **Default**: `["performance", "style", "readability", "complexity"]`
 
 - **`code-function-analysis.autoAnalyzeOnSelection`**:
 
@@ -294,7 +321,7 @@ Default\*\*: `["performance", "style", "readability", "complexity"]`
 
 - **Command Not Found**:
 
-  - Verify that the command `Analyze Selected Function` is available in the Command Palette.
+  - Verify that the command `Analyze Selected Function` or `Generate Unit Test for Selected Function` is available in the Command Palette.
   - Ensure the extension is properly installed and activated.
 
 ## Contributing
@@ -341,4 +368,4 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 
 ---
 
-**Disclaimer**: This extension sends code snippets to third-party APIs for analysis. Please ensure compliance with your organization's policies regarding code sharing and avoid sharing sensitive or proprietary code.
+**Disclaimer**: This extension sends code snippets to third-party APIs for analysis and unit test generation. Please ensure compliance with your organization's policies regarding code sharing and avoid sharing sensitive or proprietary code.
