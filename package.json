@@ -181,5 +181,6 @@
     "type": "git",
     "url": "https://github.com/Neroli1108/code-function-analysis-vscode-ext.git"
   },
+  "changelog": "https://github.com/Neroli1108/code-function-analysis-vscode-ext/blob/main/CHANGELOG.md",
   "publisher": "Nero375"
 }
