@@ -2,7 +2,7 @@
   "name": "code-function-analysis",
   "displayName": "Code Function Analysis",
   "description": "Code Function Analysis is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API or Hugging Face's free models, this tool offers comprehensive feedback on various aspects of your code, including performance, naming conventions, code quality, time and space complexity, and opportunities for improvement.",
-  "version": "1.2.0",
+  "version": "1.6.0",
   "icon": "assets/icon.png",
   "engines": {
     "vscode": "^1.94.0"
