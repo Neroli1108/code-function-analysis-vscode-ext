@@ -64,7 +64,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 ### From the VS Code Marketplace
 
-[Link](https://marketplace.visualstudio.com/items?itemName=Nero375.code-function-analysis/)
+[Link](https://marketplace.visualstudio.com/items?itemName=Nero375.code-function-analysis)
 
 ### Manual Installation
 
