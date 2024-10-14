@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2024-10-14
+
+### Added
+
+- **HTML Frontend Code Generation**: Introduced the ability to generate frontend source code (JavaScript and CSS) from HTML files using AI models (Google Gemini as the default).
+- **Improved Code Structure**: Refactored the `llmService` into multiple smaller, reusable modules for better maintainability and scalability.
+- **Utility Functions**: Added utility functions for safer handling of file extensions and active editor state.
+
+### Changed
+
+- **Code Cleanup**: Improved the handling of file inputs for generating frontend templates, with cleaner separation of logic for HTML and image processing.
+- **Updated README**: The README now includes the new HTML-to-frontend-template generation feature, with instructions on how to use it.
+
+### In Progress
+
+- **Image to Frontend Code Generation**: The ability to generate frontend code from image files (PNG, JPG, JPEG) is still being developed and will be available in future releases.
+
+---
+
 ## [1.6.0] - 2024-10-09
 
 ### Added

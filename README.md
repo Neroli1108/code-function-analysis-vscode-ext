@@ -1,6 +1,6 @@
 # Code Function Analysis Extension
 
-**Version:** 1.6.0  
+**Version:** 1.7.0  
 **Author:** Nero
 
 ---
@@ -17,6 +17,7 @@
 - [Usage](#usage)
   - [Analyzing a Function](#analyzing-a-function)
   - [Generating Unit Tests](#generating-unit-tests)
+  - [Generating Frontend Code Templates from HTML](#generating-frontend-code-templates-from-html)
 - [Commands](#commands)
 - [Extension Settings](#extension-settings)
 - [Development](#development)
@@ -38,8 +39,11 @@
 - Code quality
 - Opportunities for improvement
 - **Unit Test Generation**: Generate unit tests for selected functions using AI models.
+- **HTML to Frontend Code Generation**: Generate frontend source code (JavaScript and CSS files) from HTML files.
 
 Transform your coding experience with mentor-like suggestions and best practices to enhance your code's readability, maintainability, and efficiency.
+
+> **Note**: Image-based frontend generation is still in progress.
 
 ## Features
 
@@ -53,11 +57,12 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Automatic Selection Analysis**: Automatically analyzes selected code with debouncing to prevent excessive requests.
 - **Retry Logic for Analysis Requests**: Automatically retries analysis if the initial request fails, with enhanced handling for models that are loading.
 - **Unit Test Generation**: Automatically generate unit tests for selected functions.
+- **Frontend Code Template Generation**: Generate frontend code (JavaScript and CSS) from HTML files.
 - **Status Bar Updates**: Real-time status updates during code analysis and unit test generation.
 - **Supports Multiple AI Models**:
   - **OpenAI Models**: Use GPT-4 for sophisticated analysis and unit test generation.
   - **Hugging Face Models**: Access a variety of free language models, including `nvidia/NVLM-D-72B`.
-  - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis and unit test generation.
+  - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis, unit test generation, and frontend code generation (default model).
 - **Custom Model Support**: Ability to specify any Hugging Face model by entering the model name in the extension settings.
 
 ## Installation
@@ -128,7 +133,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 - **API Provider**:
 
-  - Choose between `"OpenAI"`, `"HuggingFace"`, or `"GoogleGemini"` for analysis and unit test generation.
+  - Choose between `"OpenAI"`, `"HuggingFace"`, or `"GoogleGemini"` for analysis, unit test generation, and frontend code generation. (Default: `"GoogleGemini"`)
 
 - **Hugging Face Model Selection**:
 
@@ -194,6 +199,23 @@ Transform your coding experience with mentor-like suggestions and best practices
 
    - A new panel will display the generated unit tests, including test cases and edge cases where applicable.
 
+### Generating Frontend Code Templates from HTML
+
+1. **Open an HTML File**:
+
+   - Open any HTML file that you want to convert into JavaScript and CSS.
+
+2. **Run the Generate Frontend Template Command**:
+
+   - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
+   - Type `Generate Frontend Template` and select the command.
+
+3. **View the Generated Code**:
+
+   - A new panel will display the generated JavaScript and CSS code, derived from your HTML content.
+
+> **Note**: Image-based frontend generation is currently still in progress.
+
 ## Commands
 
 - **Analyze Selected Function**:
@@ -201,10 +223,17 @@ Transform your coding experience with mentor-like suggestions and best practices
   - **Command ID**: `code-function-analysis.analyzeFunction`
   - **Description**: Analyzes the selected code function and provides feedback.
 
-- **Generate Unit Test for Selected Function**:
+- **Generate Unit Test for Selected Function**
 
-  - **Command ID**: `code-function-analysis.generateUnitTest`
-  - **Description**: Generates unit tests for the selected function using AI models.
+:
+
+- **Command ID**: `code-function-analysis.generateUnitTest`
+- **Description**: Generates unit tests for the selected function using AI models.
+
+- **Generate Frontend Template**:
+
+  - **Command ID**: `code-function-analysis.generateFrontendTemplate`
+  - **Description**: Generates a frontend source code template (JavaScript and CSS) from an HTML file.
 
 ## Extension Settings
 
@@ -212,8 +241,8 @@ Transform your coding experience with mentor-like suggestions and best practices
 
   - **Type**: `string`
   - **Options**: `"OpenAI"`, `"HuggingFace"`, `"GoogleGemini"`
-  - **Description**: Select the AI service provider for code analysis and unit test generation.
-  - **Default**: `"HuggingFace"`
+  - **Description**: Select the AI service provider for code analysis, unit test generation, and frontend template generation.
+  - **Default**: `"GoogleGemini"`
 
 - **`code-function-analysis.openAIApiKey`**:
 
@@ -225,20 +254,6 @@ Transform your coding experience with mentor-like suggestions and best practices
 
   - **Type**: `string`
   - **Description**: Your Hugging Face API key.
-  - **Default**: `""` (empty string)
-
-- **`code-function-analysis.huggingFaceModel`**:
-
-  - **Type**: `string`
-  - **Description**: Select a predefined Hugging Face model or set `"custom"` to use your own model.
-  - **Default**
-
-: `"EleutherAI/gpt-neo-2.7B"`
-
-- **`code-function-analysis.huggingFaceCustomModel`**:
-
-  - **Type**: `string`
-  - **Description**: Specify a custom Hugging Face model name if `"custom"` is selected.
   - **Default**: `""` (empty string)
 
 - **`code-function-analysis.googleGeminiApiKey`**:
