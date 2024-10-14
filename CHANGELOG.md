@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.1] - 2024-10-14
+
+### Added
+
+- **HTML Frontend Code Generation**: Introduced the ability to generate frontend code templates (HTML, CSS, JavaScript) from selected HTML code using AI models (OpenAI, Hugging Face, and Google Gemini).
+- **Right-Click Context Menu**: Added a new context menu option to generate frontend code from selected HTML.
+
+### In Progress
+
+- **Image Screenshot Frontend Code Generation**: Working on the feature to generate frontend code based on an image screenshot, allowing the extension to build out page layouts visually.
+- **Code Refactor**: Ongoing code refactor to improve maintainability and enhance extension performance.
+
+### Changed
+
+- Refined the selection behavior and improved handling of configuration changes for automatic function analysis without reloading the extension.
+- Updated the README to reflect the new HTML frontend code generation feature.
+
+---
+
 ## [1.6.0] - 2024-10-09
 
 ### Added
@@ -77,3 +96,5 @@ All notable changes to this project will be documented in this file.
 
 - Versions follow semantic versioning guidelines: `Major.Minor.Patch`.
 - For detailed installation and usage instructions, refer to the README.
+
+---

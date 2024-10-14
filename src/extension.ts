@@ -1,14 +1,20 @@
 import * as vscode from "vscode";
-import { analyzeCodeWithLLM, generateFunctionUnitTest } from "./llmService"; // Import both LLM analysis and unit test generation
+import {
+  analyzeCodeWithLLM,
+  generateFunctionUnitTest,
+  generateFrontendCode,
+} from "./llmService"; // Import both LLM analysis and unit test generation
 import { marked } from "marked";
 import { expandSelectionToFullFunction } from "./functionCapture";
 
 let debounceTimeout: NodeJS.Timeout | undefined;
 let statusBar: vscode.StatusBarItem;
+let selectionChangeSubscription: vscode.Disposable | undefined;
+let autoAnalyze: boolean = false; // Global variable to track auto-analyze state
 
 export function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration("code-function-analysis");
-  const autoAnalyze = config.get("autoAnalyzeOnSelection") as boolean;
+  autoAnalyze = config.get("autoAnalyzeOnSelection") as boolean;
 
   // Initialize status bar item
   statusBar = vscode.window.createStatusBarItem(
@@ -18,20 +24,9 @@ export function activate(context: vscode.ExtensionContext) {
   statusBar.text = "Code Analysis: Ready";
   statusBar.show();
 
-  // Handle auto-analysis on selection
+  // Register the auto-analysis listener based on initial config
   if (autoAnalyze) {
-    context.subscriptions.push(
-      vscode.window.onDidChangeTextEditorSelection(
-        debounce(async (event: vscode.TextEditorSelectionChangeEvent) => {
-          const editor = event.textEditor;
-          const selection = editor.selection;
-
-          if (!selection.isEmpty) {
-            await analyzeFunction(editor);
-          }
-        }, 1000) // 1-second debounce delay
-      )
-    );
+    enableAutoAnalyze(context);
   }
 
   // Register the command for manual analysis
@@ -94,11 +89,64 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  // Add the status bar and commands to context subscriptions
+  // Register the command for generating frontend code
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "code-function-analysis.generateFrontendCode",
+      async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          await generateFrontend(editor);
+        } else {
+          vscode.window.showErrorMessage("No active editor found.");
+        }
+      }
+    )
+  );
+
+  // Register right-click context menu command for generating frontend code
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "code-function-analysis.contextGenerateFrontendCode",
+      async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          await generateFrontend(editor);
+        } else {
+          vscode.window.showErrorMessage("No active editor found.");
+        }
+      }
+    )
+  );
+
+  // Add listener for configuration changes
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (
+        e.affectsConfiguration("code-function-analysis.autoAnalyzeOnSelection")
+      ) {
+        autoAnalyze = vscode.workspace
+          .getConfiguration("code-function-analysis")
+          .get("autoAnalyzeOnSelection") as boolean;
+
+        if (autoAnalyze) {
+          enableAutoAnalyze(context);
+        } else {
+          disableAutoAnalyze();
+        }
+
+        vscode.window.showInformationMessage(
+          `Auto-analysis on selection is now ${
+            autoAnalyze ? "enabled" : "disabled"
+          }.`
+        );
+      }
+    })
+  );
+
+  // Add the status bar to context subscriptions
   context.subscriptions.push(statusBar);
 }
-
-export function deactivate() {}
 
 // Debounce function to limit the rate of execution
 function debounce(func: Function, wait: number) {
@@ -165,6 +213,60 @@ async function analyzeFunction(editor: vscode.TextEditor) {
   );
 }
 
+// Function to generate frontend code based on the selected HTML code
+async function generateFrontend(editor: vscode.TextEditor) {
+  const document = editor.document;
+  const selection = editor.selection;
+
+  if (selection.isEmpty) {
+    vscode.window.showErrorMessage("No code selected.");
+    return;
+  }
+
+  const htmlCode = editor.document.getText(selection);
+  const config = vscode.workspace.getConfiguration("code-function-analysis");
+
+  statusBar.text = "Frontend Generation: Generating...";
+
+  // Show progress indicator
+  await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: "Generating frontend code...",
+      cancellable: false,
+    },
+    async (progress) => {
+      progress.report({ increment: 0 });
+
+      let frontendResult: string | null = null;
+
+      try {
+        // Generate frontend code with LLM
+        frontendResult = await generateFrontendCode(htmlCode, config);
+      } catch (error) {
+        statusBar.text = "Frontend Generation: Retry...";
+        try {
+          frontendResult = await generateFrontendCode(htmlCode, config);
+        } catch (retryError) {
+          vscode.window.showErrorMessage(
+            "Failed to generate frontend code. Please try again later."
+          );
+          statusBar.text = "Frontend Generation: Failed";
+        }
+      }
+
+      if (frontendResult) {
+        displayResults(frontendResult);
+        statusBar.text = "Frontend Generation: Complete";
+      } else {
+        statusBar.text = "Frontend Generation: Failed";
+      }
+
+      progress.report({ increment: 100 });
+    }
+  );
+}
+
 // Function to generate unit tests for the selected code
 async function generateUnitTest(editor: vscode.TextEditor) {
   const document = editor.document;
@@ -224,6 +326,33 @@ async function generateUnitTest(editor: vscode.TextEditor) {
       progress.report({ increment: 100 });
     }
   );
+}
+
+// Enable auto-analysis on selection
+function enableAutoAnalyze(context: vscode.ExtensionContext) {
+  if (selectionChangeSubscription) {
+    selectionChangeSubscription.dispose();
+  }
+
+  selectionChangeSubscription = vscode.window.onDidChangeTextEditorSelection(
+    debounce(async (event: vscode.TextEditorSelectionChangeEvent) => {
+      const editor = event.textEditor;
+      const selection = editor.selection;
+
+      if (!selection.isEmpty) {
+        await analyzeFunction(editor);
+      }
+    }, 1000) // 1-second debounce delay
+  );
+
+  context.subscriptions.push(selectionChangeSubscription);
+}
+
+// Disable auto-analysis on selection
+function disableAutoAnalyze() {
+  if (selectionChangeSubscription) {
+    selectionChangeSubscription.dispose();
+  }
 }
 
 // Function to display results in a webview panel

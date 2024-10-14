@@ -1,6 +1,6 @@
 # Code Function Analysis Extension
 
-**Version:** 1.6.0  
+**Version:** 1.7.1  
 **Author:** Nero
 
 ---
@@ -31,15 +31,17 @@
 
 ## Introduction
 
-**Code Function Analysis** is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API, free models from Hugging Face, and Google's Gemini AI models, this tool offers comprehensive feedback on various aspects of your code, including:
+**Code Function Analysis** is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4, free models from Hugging Face, and Google's Gemini AI, this tool offers comprehensive feedback on various aspects of your code, including:
 
-- Performance optimization
-- Naming conventions
-- Code quality
-- Opportunities for improvement
-- **Unit Test Generation**: Generate unit tests for selected functions using AI models.
+- **Performance optimization**
+- **Naming conventions**
+- **Code quality**
+- **Opportunities for improvement**
+- **Unit Test Generation**: Generate unit tests for selected functions using AI models
 
 Transform your coding experience with mentor-like suggestions and best practices to enhance your code's readability, maintainability, and efficiency.
+
+---
 
 ## Features
 
@@ -50,21 +52,23 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Interactive Learning**: Access relevant documentation and examples for further learning.
 - **Feedback Customization**: Tailor the analysis focus and feedback level to your preferences.
 - **Multi-Language Support**: Supports Python, JavaScript, Java, C++, and more.
-- **Automatic Selection Analysis**: Automatically analyzes selected code with debouncing to prevent excessive requests.
+- **Automatic Selection Analysis**: Automatically analyze selected code with debouncing to prevent excessive requests.
 - **Retry Logic for Analysis Requests**: Automatically retries analysis if the initial request fails, with enhanced handling for models that are loading.
 - **Unit Test Generation**: Automatically generate unit tests for selected functions.
 - **Status Bar Updates**: Real-time status updates during code analysis and unit test generation.
 - **Supports Multiple AI Models**:
   - **OpenAI Models**: Use GPT-4 for sophisticated analysis and unit test generation.
-  - **Hugging Face Models**: Access a variety of free language models, including `nvidia/NVLM-D-72B`.
+  - **Hugging Face Models**: Access a variety of free models, including `nvidia/NVLM-D-72B`.
   - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis and unit test generation.
 - **Custom Model Support**: Ability to specify any Hugging Face model by entering the model name in the extension settings.
+
+---
 
 ## Installation
 
 ### From the VS Code Marketplace
 
-[Link](https://marketplace.visualstudio.com/items?itemName=Nero375.code-function-analysis)
+[Install Code Function Analysis](https://marketplace.visualstudio.com/items?itemName=Nero375.code-function-analysis)
 
 ### Manual Installation
 
@@ -92,18 +96,22 @@ Transform your coding experience with mentor-like suggestions and best practices
    npm run compile
    ```
 
-5. **Install the Extension**:
+5. **Install the Extension in VS Code**:
 
    - Open Visual Studio Code.
-   - Go to `Extensions` (Ctrl+Shift+X or Cmd+Shift+X).
+   - Go to `Extensions` (`Ctrl+Shift+X` or `Cmd+Shift+X`).
    - Click on the `...` menu and select `Install from VSIX...`.
    - Navigate to the `code-function-analysis-vscode-ext` directory and select the generated `.vsix` file.
+
+---
 
 ## Requirements
 
 - **Visual Studio Code** version `1.94.0` or higher.
 - **Node.js** version `14.x` or higher.
 - An **API Key** for OpenAI, Hugging Face, or Google Gemini, depending on the models you want to use.
+
+---
 
 ## Getting Started
 
@@ -145,6 +153,8 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Automatic Analysis**:
 
   - Enable or disable automatic analysis when code is selected.
+
+---
 
 ## Usage
 
@@ -194,6 +204,8 @@ Transform your coding experience with mentor-like suggestions and best practices
 
    - A new panel will display the generated unit tests, including test cases and edge cases where applicable.
 
+---
+
 ## Commands
 
 - **Analyze Selected Function**:
@@ -205,6 +217,8 @@ Transform your coding experience with mentor-like suggestions and best practices
 
   - **Command ID**: `code-function-analysis.generateUnitTest`
   - **Description**: Generates unit tests for the selected function using AI models.
+
+---
 
 ## Extension Settings
 
@@ -230,10 +244,11 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **`code-function-analysis.huggingFaceModel`**:
 
   - **Type**: `string`
-  - **Description**: Select a predefined Hugging Face model or set `"custom"` to use your own model.
-  - **Default**
+  - **Description**
 
-: `"EleutherAI/gpt-neo-2.7B"`
+: Select a predefined Hugging Face model or set `"custom"` to use your own model.
+
+- **Default**: `"EleutherAI/gpt-neo-2.7B"`
 
 - **`code-function-analysis.huggingFaceCustomModel`**:
 
@@ -266,6 +281,8 @@ Transform your coding experience with mentor-like suggestions and best practices
   - **Type**: `boolean`
   - **Description**: Automatically analyze code when it is selected.
   - **Default**: `false`
+
+---
 
 ## Development
 
@@ -305,6 +322,8 @@ Transform your coding experience with mentor-like suggestions and best practices
 
    - Follow the usage instructions to test the extension's functionality.
 
+---
+
 ## Troubleshooting
 
 - **Failed to Get Response from API**:
@@ -323,6 +342,8 @@ Transform your coding experience with mentor-like suggestions and best practices
 
   - Verify that the command `Analyze Selected Function` or `Generate Unit Test for Selected Function` is available in the Command Palette.
   - Ensure the extension is properly installed and activated.
+
+---
 
 ## Contributing
 
@@ -354,9 +375,13 @@ Contributions are welcome! Please follow these steps:
 
    - Go to the original repository and click on "New Pull Request".
 
+---
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/Neroli1108/code-function-analysis-vscode-ext/blob/main/LICENSE) file for details.
+
+---
 
 ## Acknowledgments
 

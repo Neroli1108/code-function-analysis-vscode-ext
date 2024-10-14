@@ -458,3 +458,178 @@ function handleApiError(error: any, providerName: string) {
     );
   }
 }
+
+export async function generateFrontendCode(
+  htmlCode: string,
+  config: vscode.WorkspaceConfiguration
+): Promise<string> {
+  const provider = (config.get("apiProvider") as string) || "HuggingFace";
+  let result = "";
+
+  switch (provider) {
+    case "OpenAI":
+      result = await generateFrontendWithOpenAI(htmlCode, config);
+      break;
+    case "HuggingFace":
+      result = await generateFrontendWithHuggingFace(htmlCode, config);
+      break;
+    case "GoogleGemini":
+      result = await generateFrontendWithGoogleGemini(htmlCode, config);
+      break;
+    default:
+      vscode.window.showErrorMessage("Invalid API provider selected.");
+      return "";
+  }
+
+  return result;
+}
+
+// Helper function to build the prompt for frontend code generation
+function buildFrontendPrompt(htmlCode: string): string {
+  return `You are a frontend developer assistant. Given the following HTML code, generate corresponding CSS styles and JavaScript code to enhance the functionality and styling of the webpage. Ensure that the CSS is well-structured and follows best practices, and that the JavaScript adds interactive features where appropriate.
+
+HTML Code:
+${htmlCode}`;
+}
+
+// Implementations for different providers
+
+async function generateFrontendWithOpenAI(
+  htmlCode: string,
+  config: vscode.WorkspaceConfiguration
+): Promise<string> {
+  const apiKey = config.get("openAIApiKey") as string;
+
+  if (!apiKey) {
+    vscode.window.showErrorMessage(
+      "OpenAI API key is not set. Please set it in the extension settings."
+    );
+    return "";
+  }
+
+  const prompt = buildFrontendPrompt(htmlCode);
+
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 1500,
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+      }
+    );
+
+    return response.data.choices[0].message.content.trim();
+  } catch (error: any) {
+    handleApiError(error, "OpenAI");
+    return "";
+  }
+}
+
+async function generateFrontendWithHuggingFace(
+  htmlCode: string,
+  config: vscode.WorkspaceConfiguration
+): Promise<string> {
+  const apiKey = config.get("huggingFaceApiKey") as string;
+  let model =
+    (config.get("huggingFaceModel") as string) || "EleutherAI/gpt-neo-2.7B";
+
+  if (model === "custom") {
+    const customModel = config.get("huggingFaceCustomModel") as string;
+    if (!customModel) {
+      vscode.window.showErrorMessage(
+        "Custom model is not set. Please provide a custom Hugging Face model name."
+      );
+      return "";
+    }
+    model = customModel;
+  }
+
+  if (!apiKey) {
+    vscode.window.showErrorMessage(
+      "Hugging Face API key is not set. Please set it in the extension settings."
+    );
+    return "";
+  }
+
+  const prompt = buildFrontendPrompt(htmlCode);
+
+  const payload: any = { inputs: prompt };
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${apiKey}`,
+  };
+
+  const modelsSupportingParameters = [
+    "EleutherAI/gpt-neo-2.7B",
+    "bigscience/bloom-1b1",
+    "google/flan-t5-large",
+    "facebook/opt-1.3b",
+    "nvidia/NVLM-D-72B",
+  ];
+
+  if (modelsSupportingParameters.includes(model)) {
+    payload.parameters = {
+      max_new_tokens: 700,
+      temperature: 0.7,
+    };
+  }
+
+  try {
+    const response = await axios.post(
+      `https://api-inference.huggingface.co/models/${model}`,
+      payload,
+      { headers }
+    );
+
+    if (response.data && response.data.generated_text) {
+      return response.data.generated_text.trim();
+    } else if (Array.isArray(response.data)) {
+      return response.data[0].generated_text.trim();
+    } else {
+      vscode.window.showErrorMessage(
+        "Unexpected response format from Hugging Face API."
+      );
+      console.error("Response:", response.data);
+      return "";
+    }
+  } catch (error: any) {
+    handleApiError(error, "Hugging Face");
+    return "";
+  }
+}
+
+async function generateFrontendWithGoogleGemini(
+  htmlCode: string,
+  config: vscode.WorkspaceConfiguration
+): Promise<string> {
+  const apiKey = config.get("googleGeminiApiKey") as string;
+  const modelName =
+    (config.get("googleGeminiModel") as string) || "gemini-1.5-flash";
+
+  if (!apiKey) {
+    vscode.window.showErrorMessage(
+      "Google Gemini API key is not set. Please set it in the extension settings."
+    );
+    return "";
+  }
+
+  const prompt = buildFrontendPrompt(htmlCode);
+
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error: any) {
+    handleApiError(error, "Google Gemini");
+    return "";
+  }
+}

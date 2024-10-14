@@ -30,6 +30,11 @@
         "command": "code-function-analysis.generateUnitTest",
         "title": "Generate Unit Test for Selected Function",
         "category": "Code Function Analysis"
+      },
+      {
+        "command": "code-function-analysis.generateFrontendCode",
+        "title": "Generate Frontend Code from HTML",
+        "category": "Code Function Analysis"
       }
     ],
     "menus": {
@@ -41,6 +46,11 @@
         },
         {
           "command": "code-function-analysis.generateUnitTest",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        },
+        {
+          "command": "code-function-analysis.generateFrontendCode",
           "when": "editorHasSelection",
           "group": "navigation"
         }
