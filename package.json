@@ -18,7 +18,8 @@
     "onLanguage:java",
     "onLanguage:cpp",
     "onCommand:code-function-analysis.analyzeFunction",
-    "onCommand:code-function-analysis.generateUnitTest"
+    "onCommand:code-function-analysis.generateUnitTest",
+    "onCommand:code-function-analysis.generateFrontendTemplate"
   ],
   "contributes": {
     "commands": [
@@ -29,6 +30,11 @@
       {
         "command": "code-function-analysis.generateUnitTest",
         "title": "Generate Unit Test for Selected Function",
+        "category": "Code Function Analysis"
+      },
+      {
+        "command": "code-function-analysis.generateFrontendTemplate",
+        "title": "Generate Frontend Template",
         "category": "Code Function Analysis"
       }
     ],
@@ -42,6 +48,11 @@
         {
           "command": "code-function-analysis.generateUnitTest",
           "when": "editorHasSelection",
+          "group": "navigation"
+        },
+        {
+          "command": "code-function-analysis.generateFrontendTemplate",
+          "when": "resourceExtname == .html || resourceExtname == .png || resourceExtname == .jpg || resourceExtname == .jpeg",
           "group": "navigation"
         }
       ]
@@ -175,7 +186,8 @@
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "axios": "^1.4.0",
-    "marked": "^14.1.2"
+    "marked": "^14.1.2",
+    "tesseract.js": "^5.1.1"
   },
   "repository": {
     "type": "git",
