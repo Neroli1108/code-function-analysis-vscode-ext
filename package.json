@@ -1,11 +1,11 @@
 {
   "name": "code-function-analysis",
   "displayName": "Code Function Analysis",
-  "description": "Code Function Analysis is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API or Hugging Face's free models, this tool offers comprehensive feedback on various aspects of your code, including performance, naming conventions, code quality, time and space complexity, and opportunities for improvement.",
+  "description": "Code Function Analysis is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4 API, Hugging Face models, or Google Gemini, this tool offers comprehensive feedback on various aspects of your code, including performance, naming conventions, code quality, time and space complexity, and opportunities for improvement.",
   "version": "1.7.1",
   "icon": "assets/icon.png",
   "engines": {
-    "vscode": "^1.94.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
@@ -18,13 +18,20 @@
     "onLanguage:java",
     "onLanguage:cpp",
     "onCommand:code-function-analysis.analyzeFunction",
-    "onCommand:code-function-analysis.generateUnitTest"
+    "onCommand:code-function-analysis.generateUnitTest",
+    "onCommand:code-function-analysis.generateFrontendCode",
+    "onCommand:code-function-analysis.generateCommitMessage",
+    "onCommand:code-function-analysis.contextAnalyze",
+    "onCommand:code-function-analysis.contextGenerateUnitTest",
+    "onCommand:code-function-analysis.contextGenerateFrontendCode",
+    "onCommand:code-function-analysis.contextGenerateCommitMessage"
   ],
   "contributes": {
     "commands": [
       {
         "command": "code-function-analysis.analyzeFunction",
-        "title": "Analyze Selected Function"
+        "title": "Analyze Selected Function",
+        "category": "Code Function Analysis"
       },
       {
         "command": "code-function-analysis.generateUnitTest",
@@ -35,24 +42,67 @@
         "command": "code-function-analysis.generateFrontendCode",
         "title": "Generate Frontend Code from HTML",
         "category": "Code Function Analysis"
+      },
+      {
+        "command": "code-function-analysis.generateCommitMessage",
+        "title": "Generate Commit Message",
+        "category": "Code Function Analysis"
+      },
+      {
+        "command": "code-function-analysis.contextAnalyze",
+        "title": "Analyze Selected Function",
+        "category": "Code Function Analysis"
+      },
+      {
+        "command": "code-function-analysis.contextGenerateUnitTest",
+        "title": "Generate Unit Test for Selected Function",
+        "category": "Code Function Analysis"
+      },
+      {
+        "command": "code-function-analysis.contextGenerateFrontendCode",
+        "title": "Generate Frontend Code from HTML",
+        "category": "Code Function Analysis"
+      },
+      {
+        "command": "code-function-analysis.contextGenerateCommitMessage",
+        "title": "Generate Commit Message",
+        "category": "Code Function Analysis"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "command": "code-function-analysis.analyzeFunction",
+          "command": "code-function-analysis.contextAnalyze",
           "when": "editorHasSelection",
           "group": "navigation"
         },
         {
-          "command": "code-function-analysis.generateUnitTest",
+          "command": "code-function-analysis.contextGenerateUnitTest",
           "when": "editorHasSelection",
           "group": "navigation"
         },
         {
-          "command": "code-function-analysis.generateFrontendCode",
+          "command": "code-function-analysis.contextGenerateFrontendCode",
           "when": "editorHasSelection",
           "group": "navigation"
+        },
+        {
+          "command": "code-function-analysis.contextGenerateCommitMessage",
+          "when": "gitOpenRepositoryCount != 0",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "code-function-analysis.generateCommitMessage",
+          "when": "gitOpenRepositoryCount != 0"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "code-function-analysis.generateCommitMessage",
+          "when": "scmProvider == git",
+          "group": "navigation@1"
         }
       ]
     },
@@ -83,7 +133,7 @@
         "code-function-analysis.googleGeminiApiKey": {
           "type": "string",
           "default": "",
-          "description": "Your Gemini API key."
+          "description": "Your Google Gemini API key."
         },
         "code-function-analysis.huggingFaceModel": {
           "type": "string",
@@ -112,7 +162,7 @@
             "gemini-1.0-pro"
           ],
           "default": "gemini-1.5-flash",
-          "description": "Select the Gemini model to use."
+          "description": "Select the Google Gemini model to use."
         },
         "code-function-analysis.feedbackLevel": {
           "type": "string",
@@ -172,7 +222,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.8",
     "@types/node": "20.x",
-    "@types/vscode": "^1.94.0",
+    "@types/vscode": "^1.80.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
     "@vscode/test-cli": "^0.0.10",
