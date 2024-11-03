@@ -1,6 +1,6 @@
 # Code Function Analysis Extension
 
-**Version:** 1.7.1  
+**Version:** 1.8.0  
 **Author:** Nero
 
 ---
@@ -17,6 +17,8 @@
 - [Usage](#usage)
   - [Analyzing a Function](#analyzing-a-function)
   - [Generating Unit Tests](#generating-unit-tests)
+  - [Generating Frontend Code](#generating-frontend-code)
+  - [Generating Commit Messages](#generating-commit-messages)
 - [Commands](#commands)
 - [Extension Settings](#extension-settings)
 - [Development](#development)
@@ -31,13 +33,15 @@
 
 ## Introduction
 
-**Code Function Analysis** is a Visual Studio Code extension that provides intelligent, context-aware analysis of your selected code functions. Leveraging advanced AI through OpenAI's GPT-4, free models from Hugging Face, and Google's Gemini AI, this tool offers comprehensive feedback on various aspects of your code, including:
+**Code Function Analysis** is a Visual Studio Code extension that provides intelligent, context-aware analysis of your code. Leveraging advanced AI through OpenAI's GPT-4, models from Hugging Face, and Google's Gemini AI, this tool offers comprehensive feedback on various aspects of your code, including:
 
 - **Performance optimization**
 - **Naming conventions**
 - **Code quality**
 - **Opportunities for improvement**
 - **Unit Test Generation**: Generate unit tests for selected functions using AI models
+- **Frontend Code Generation**: Automatically generate CSS and JavaScript code from selected HTML snippets
+- **Commit Message Generation**: Automatically generate commit messages based on your staged Git changes
 
 Transform your coding experience with mentor-like suggestions and best practices to enhance your code's readability, maintainability, and efficiency.
 
@@ -51,15 +55,17 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Mentor-Like Feedback**: Get constructive advice with clear explanations for each recommendation.
 - **Interactive Learning**: Access relevant documentation and examples for further learning.
 - **Feedback Customization**: Tailor the analysis focus and feedback level to your preferences.
-- **Multi-Language Support**: Supports Python, JavaScript, Java, C++, and more.
+- **Multi-Language Support**: Supports Python, JavaScript, Java, C++, HTML, and more.
 - **Automatic Selection Analysis**: Automatically analyze selected code with debouncing to prevent excessive requests.
 - **Retry Logic for Analysis Requests**: Automatically retries analysis if the initial request fails, with enhanced handling for models that are loading.
 - **Unit Test Generation**: Automatically generate unit tests for selected functions.
-- **Status Bar Updates**: Real-time status updates during code analysis and unit test generation.
+- **Frontend Code Generation**: Generate CSS and JavaScript code from selected HTML snippets to enhance functionality and appearance.
+- **Commit Message Generation**: Generate concise and descriptive commit messages based on your staged Git changes.
+- **Status Bar Updates**: Real-time status updates during code analysis, unit test generation, frontend code generation, and commit message generation.
 - **Supports Multiple AI Models**:
-  - **OpenAI Models**: Use GPT-4 for sophisticated analysis and unit test generation.
-  - **Hugging Face Models**: Access a variety of free models, including `nvidia/NVLM-D-72B`.
-  - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis and unit test generation.
+  - **OpenAI Models**: Use GPT-4 for sophisticated analysis and generation tasks.
+  - **Hugging Face Models**: Access a variety of models, including `nvidia/NVLM-D-72B`.
+  - **Google Gemini Models**: Choose from different variants like Gemini 1.5 Flash, Flash-8B, Pro, and Gemini 1.0 Pro for AI analysis and generation.
 - **Custom Model Support**: Ability to specify any Hugging Face model by entering the model name in the extension settings.
 
 ---
@@ -110,6 +116,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **Visual Studio Code** version `1.94.0` or higher.
 - **Node.js** version `14.x` or higher.
 - An **API Key** for OpenAI, Hugging Face, or Google Gemini, depending on the models you want to use.
+- **Git** must be installed and accessible in your system's PATH for commit message generation.
 
 ---
 
@@ -136,11 +143,11 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 - **API Provider**:
 
-  - Choose between `"OpenAI"`, `"HuggingFace"`, or `"GoogleGemini"` for analysis and unit test generation.
+  - Choose between `"OpenAI"`, `"HuggingFace"`, or `"GoogleGemini"` for analysis and generation tasks.
 
 - **Hugging Face Model Selection**:
 
-  - Choose from the pre-defined models or set `"custom"` and specify your desired model name for analysis or unit test generation.
+  - Choose from the pre-defined models or set `"custom"` and specify your desired model name.
 
 - **Feedback Level**:
 
@@ -162,7 +169,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 1. **Open a Code File**:
 
-   - Open a code file in a supported language (e.g., Python).
+   - Open a code file in a supported language (e.g., Python, JavaScript).
 
 2. **Select a Function**:
 
@@ -170,18 +177,14 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 3. **Run the Analysis Command**:
 
-   - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
-   - Type `Analyze Selected Function` and select the command.
+   - Right-click and select **"Analyze Selected Function"** from the context menu.
+   - Or open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS), type `Analyze Selected Function`, and select the command.
 
-4. **Automatic Analysis (if enabled)**:
-
-   - Code analysis will automatically trigger when you select code, with a 1-second debounce to prevent excessive requests.
-
-5. **View the Analysis**:
+4. **View the Analysis**:
 
    - A new panel will display the analysis, including suggestions and improvements.
 
-6. **Status Bar**:
+5. **Status Bar**:
 
    - The status bar at the bottom left will display real-time updates, such as "Analyzing...", "Complete", or "Retrying..." when applicable.
 
@@ -189,7 +192,7 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 1. **Open a Code File**:
 
-   - Open a code file in a supported language (e.g., Python).
+   - Open a code file in a supported language.
 
 2. **Select a Function**:
 
@@ -197,12 +200,58 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 3. **Run the Generate Unit Test Command**:
 
-   - Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
-   - Type `Generate Unit Test for Selected Function` and select the command.
+   - Right-click and select **"Generate Unit Test for Selected Function"** from the context menu.
+   - Or open the Command Palette, type `Generate Unit Test for Selected Function`, and select the command.
 
 4. **View the Generated Unit Tests**:
 
    - A new panel will display the generated unit tests, including test cases and edge cases where applicable.
+
+### Generating Frontend Code
+
+1. **Open an HTML File**:
+
+   - Open an HTML file containing the code you want to enhance.
+
+2. **Select an HTML Snippet**:
+
+   - Highlight the HTML code for which you want to generate CSS and JavaScript.
+
+3. **Run the Generate Frontend Code Command**:
+
+   - Right-click and select **"Generate Frontend Code from HTML"** from the context menu.
+   - Or open the Command Palette, type `Generate Frontend Code from HTML`, and select the command.
+
+4. **View the Generated Code**:
+
+   - A new panel will display the generated CSS and JavaScript code to enhance the functionality and appearance of your HTML snippet.
+
+### Generating Commit Messages
+
+1. **Stage Your Changes**:
+
+   - Use Git to stage the changes you want to commit.
+
+2. **Run the Generate Commit Message Command**:
+
+   - Right-click in the editor and select **"Generate Commit Message"** from the context menu.
+   - Or open the Command Palette, type `Generate Commit Message`, and select the command.
+
+3. **View and Confirm the Commit Message**:
+
+   - A new panel will display the generated commit message.
+   - You can choose to **Commit**, **Edit Message**, or **Cancel**.
+
+4. **Commit the Changes**:
+
+   - If you choose **Commit**, the extension will commit the staged changes using the generated message.
+   - If you choose **Edit Message**, you can modify the message before committing.
+
+5. **Status Bar**:
+
+   - The status bar will display updates like "Generating...", "Complete", or "Failed" during the process.
+
+**Note**: Ensure that Git is installed and properly configured in your system for this feature to work.
 
 ---
 
@@ -218,6 +267,16 @@ Transform your coding experience with mentor-like suggestions and best practices
   - **Command ID**: `code-function-analysis.generateUnitTest`
   - **Description**: Generates unit tests for the selected function using AI models.
 
+- **Generate Frontend Code from HTML**:
+
+  - **Command ID**: `code-function-analysis.generateFrontendCode`
+  - **Description**: Generates CSS and JavaScript code from selected HTML snippets.
+
+- **Generate Commit Message**:
+
+  - **Command ID**: `code-function-analysis.generateCommitMessage`
+  - **Description**: Generates a commit message based on your staged Git changes.
+
 ---
 
 ## Extension Settings
@@ -226,8 +285,8 @@ Transform your coding experience with mentor-like suggestions and best practices
 
   - **Type**: `string`
   - **Options**: `"OpenAI"`, `"HuggingFace"`, `"GoogleGemini"`
-  - **Description**: Select the AI service provider for code analysis and unit test generation.
-  - **Default**: `"HuggingFace"`
+  - **Description**: Select the AI service provider for code analysis and generation tasks.
+  - **Default**: `"GoogleGemini"`
 
 - **`code-function-analysis.openAIApiKey`**:
 
@@ -244,11 +303,9 @@ Transform your coding experience with mentor-like suggestions and best practices
 - **`code-function-analysis.huggingFaceModel`**:
 
   - **Type**: `string`
-  - **Description**
-
-: Select a predefined Hugging Face model or set `"custom"` to use your own model.
-
-- **Default**: `"EleutherAI/gpt-neo-2.7B"`
+  - **Options**: Predefined models or `"custom"`
+  - **Description**: Select a predefined Hugging Face model or set `"custom"` to use your own model.
+  - **Default**: `"EleutherAI/gpt-neo-2.7B"`
 
 - **`code-function-analysis.huggingFaceCustomModel`**:
 
@@ -261,6 +318,13 @@ Transform your coding experience with mentor-like suggestions and best practices
   - **Type**: `string`
   - **Description**: Your Google Gemini API key.
   - **Default**: `""` (empty string)
+
+- **`code-function-analysis.googleGeminiModel`**:
+
+  - **Type**: `string`
+  - **Options**: `"gemini-1.5-flash"`, `"gemini-1.5-flash-8b"`, `"gemini-1.5-pro"`, `"gemini-1.0-pro"`
+  - **Description**: Select the Google Gemini model to use.
+  - **Default**: `"gemini-1.5-flash"`
 
 - **`code-function-analysis.feedbackLevel`**:
 
@@ -281,6 +345,12 @@ Transform your coding experience with mentor-like suggestions and best practices
   - **Type**: `boolean`
   - **Description**: Automatically analyze code when it is selected.
   - **Default**: `false`
+
+- **`code-function-analysis.expandSelectionToFunction`**:
+
+  - **Type**: `boolean`
+  - **Description**: Expand selection to the full function when a single line is selected.
+  - **Default**: `true`
 
 ---
 
@@ -340,8 +410,14 @@ Transform your coding experience with mentor-like suggestions and best practices
 
 - **Command Not Found**:
 
-  - Verify that the command `Analyze Selected Function` or `Generate Unit Test for Selected Function` is available in the Command Palette.
+  - Verify that the command is available in the Command Palette or context menu.
   - Ensure the extension is properly installed and activated.
+
+- **Git Commit Issues**:
+
+  - Make sure Git is installed and accessible from the command line.
+  - Ensure your changes are staged before generating a commit message.
+  - Check for any errors in the terminal or output panel.
 
 ---
 
@@ -386,11 +462,17 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 ## Acknowledgments
 
 - **OpenAI** for providing the GPT-4 API.
-- **Hugging Face** for free AI models.
+- **Hugging Face** for AI models.
 - **Google** for providing the Gemini AI models.
 - **Visual Studio Code** for the extension platform.
 - **Community Contributors** for their valuable feedback and contributions.
 
 ---
 
-**Disclaimer**: This extension sends code snippets to third-party APIs for analysis and unit test generation. Please ensure compliance with your organization's policies regarding code sharing and avoid sharing sensitive or proprietary code.
+**Disclaimer**: This extension sends code snippets and diffs to third-party APIs for analysis and generation tasks. Please ensure compliance with your organization's policies regarding code sharing and avoid sharing sensitive or proprietary code.
+
+---
+
+**Note**: Always keep your API keys secure and avoid committing them to source control.
+
+---

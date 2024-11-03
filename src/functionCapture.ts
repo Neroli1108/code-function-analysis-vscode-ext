@@ -1,4 +1,6 @@
-import * as vscode from 'vscode';
+// src/functionCapture.ts
+
+import * as vscode from "vscode";
 
 /**
  * Expands the selection to cover the whole function if only a single line is selected.
@@ -8,25 +10,23 @@ export function expandSelectionToFullFunction(
   document: vscode.TextDocument,
   selection: vscode.Selection
 ): vscode.Selection {
-    
-// Read the user's configuration for expanding selection
-const config = vscode.workspace.getConfiguration('code-function-analysis');
-const expandSelection = config.get('expandSelectionToFunction', true); // Default to true
+  // Read the user's configuration for expanding selection
+  const config = vscode.workspace.getConfiguration("code-function-analysis");
+  const expandSelection = config.get("expandSelectionToFunction", true);
 
-// If the setting is false, return the original selection
-if (!expandSelection) {
-  return selection;
-}
-
+  // If the setting is false, return the original selection
+  if (!expandSelection) {
+    return selection;
+  }
 
   const languageId = document.languageId;
   switch (languageId) {
-    case 'python':
+    case "python":
       return expandForPython(document, selection);
-    case 'javascript':
-    case 'typescript':
-    case 'java':
-    case 'cpp':
+    case "javascript":
+    case "typescript":
+    case "java":
+    case "cpp":
       return expandForCurlyBraceLanguages(document, selection);
     default:
       // Default behavior: return the original selection if the language is unsupported
@@ -45,20 +45,22 @@ function expandForPython(
   // Move the startLine up to find the function or class definition
   while (startLine > 0) {
     const lineText = document.lineAt(startLine).text.trim();
-    if (lineText.startsWith('def ') || lineText.startsWith('class ')) {
+    if (lineText.startsWith("def ") || lineText.startsWith("class ")) {
       break;
     }
     startLine--;
   }
 
   // Move the endLine down to include the full function body based on indentation
-  const baseIndentation = document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
+  const baseIndentation =
+    document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
   while (endLine < document.lineCount - 1) {
     endLine++;
     const lineText = document.lineAt(endLine).text.trim();
     if (
-      lineText && 
-      document.lineAt(endLine).firstNonWhitespaceCharacterIndex <= baseIndentation
+      lineText &&
+      document.lineAt(endLine).firstNonWhitespaceCharacterIndex <=
+        baseIndentation
     ) {
       endLine--; // Step back to the previous line since we are out of function scope
       break;
@@ -97,10 +99,10 @@ function expandForCurlyBraceLanguages(
   for (let i = startLine; i < document.lineCount; i++) {
     const lineText = document.lineAt(i).text;
     for (const char of lineText) {
-      if (char === '{') {
+      if (char === "{") {
         openBraces++;
         foundStart = true;
-      } else if (char === '}') {
+      } else if (char === "}") {
         closeBraces++;
       }
 
@@ -124,20 +126,22 @@ function expandForCurlyBraceLanguages(
 
 // Check if the line is a function or method start for JS, TS, Java, or C++
 function isFunctionStart(lineText: string, languageId: string): boolean {
-    // Remove comments and whitespace for better matching
-    lineText = lineText.trim().replace(/\/\/.*|\/\*.*\*\//g, '');
-  
-    if (languageId === 'javascript' || languageId === 'typescript') {
-      return (
-        lineText.startsWith('function ') ||
-        lineText.includes('=>') ||
-        !!lineText.match(/^[a-zA-Z_$][0-9a-zA-Z_$]*\s*\(.*\)\s*{/)
-      );
-    }
-  
-    if (languageId === 'java' || languageId === 'cpp') {
-      return !!lineText.match(/^[a-zA-Z_$][0-9a-zA-Z_$]*\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*\(.*\)\s*{/);
-    }
-  
-    return false;
+  // Remove comments and whitespace for better matching
+  lineText = lineText.trim().replace(/\/\/.*|\/\*.*\*\//g, "");
+
+  if (languageId === "javascript" || languageId === "typescript") {
+    return (
+      lineText.startsWith("function ") ||
+      lineText.includes("=>") ||
+      !!lineText.match(/^[a-zA-Z_$][0-9a-zA-Z_$]*\s*\(.*\)\s*{/)
+    );
   }
+
+  if (languageId === "java" || languageId === "cpp") {
+    return !!lineText.match(
+      /^[a-zA-Z_$][0-9a-zA-Z_$]*\s+[a-zA-Z_$][0-9a-zA-Z_$]*\s*\(.*\)\s*{/
+    );
+  }
+
+  return false;
+}
